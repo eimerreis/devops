@@ -1,0 +1,3 @@
+# Keep release credentials in caller environments
+
+Reusable workflows execute with the caller's context and do not automatically receive secrets stored in the baseline repository; personal accounts have no native cross-repository Actions secret store. Each participating repository will keep App credentials in a release-only environment restricted to its actual default branch and pass only the required secrets to shared workflows. This accepts credential distribution across participating repositories, with explicit recognition that narrowing each job's installation token does not narrow the App private key's authority across its installations.

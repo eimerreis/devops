@@ -1,0 +1,3 @@
+# Publish the generic baseline as a public repository
+
+Generic delivery automation and documentation will live in the public `eimerreis/devops` repository, while host operations and private application configuration remain in their existing repositories. Public visibility simplifies reusable-workflow consumption and Dependabot upgrades without introducing private-baseline read credentials, and permits free standard hosted CI for the baseline itself. Caller secrets, source visibility, and run-log access remain governed by the caller repository; trusted shared code can still access the caller capabilities explicitly granted to it.

@@ -1,0 +1,3 @@
+# Record release metadata before building and deploying
+
+Release version state and consumed changesets must persist so later releases do not reuse the same inputs. Automation will commit generated version/changelog updates and consumed changesets before the release build and deployment, with the recorded revision providing the source for both; publication still waits for successful production deployment. This avoids deploying before its version bookkeeping is recorded, but a failed build or deployment leaves a prepared, unpublished version governed by the release-hold and retry/supersession policy.

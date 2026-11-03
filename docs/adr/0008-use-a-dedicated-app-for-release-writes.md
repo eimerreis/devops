@@ -1,0 +1,3 @@
+# Use a dedicated App for release writes
+
+Automatic metadata commits need an authorized route through protected default branches without introducing release pull requests. A dedicated GitHub App installed on participating repositories will provide the release-writing identity and receive an explicit branch-protection exception; the trusted workflow must restrict its writes because that exception attaches to the App, rather than to particular metadata files. App installation may support enrollment-driven enforcement later, while v1 adoption remains explicit and the initial App has Contents: write and Workflows: write, no Administration permission, and narrower tokens per job.
