@@ -18,10 +18,13 @@ Host configuration remains in [mac-mini](https://github.com/eimerreis/mac-mini).
 ## Design and implementation
 
 - [Confirmed v1 design](docs/delivery-baseline.md)
+- [v1.0.0 milestone](https://github.com/eimerreis/devops/milestone/1) and [dependency-ordered implementation plan](docs/implementation-plan.md)
 - [Domain glossary](GLOSSARY.md)
 - [Architectural decision records](docs/adr/)
 
 The pilot is djlib. Wider adoption follows isolated failure/retry/rollback rehearsals and a verified production pilot release. Platform-specific distribution remains application-owned.
+
+Start with [#1: the application delivery contract](https://github.com/eimerreis/devops/issues/1). Each implementation issue includes acceptance criteria and native dependency links.
 
 ## License
 

@@ -91,6 +91,8 @@ Reconcile each application's existing release history and declare the initial ve
 
 These are implementation and verification tasks, not unresolved policy questions.
 
+They are tracked in the [v1.0.0 implementation plan](implementation-plan.md) and its linked GitHub issues.
+
 - Prove Changesets configuration for release units and migration from existing versions, including packages that should not be independently released.
 - Define thin caller interfaces and shared workflow topology. Shared helper code must execute from the reviewed pinned baseline revision.
 - Reject unexpected non-metadata writes before using the App bypass. Prevent metadata-generated events from recursively preparing another release.
