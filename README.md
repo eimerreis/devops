@@ -7,7 +7,7 @@ The confirmed design is the v1 requirements brief. This repository currently con
 ## Delivery contract
 
 - Applications keep ownership of their languages, frameworks, and commands. Shared workflows enforce validation and release stages.
-- Ordinary changes arrive through checked pull requests. Changesets declare version bumps and changelog entries; there is no separate release PR. Without pending changesets, CI runs and production stays unchanged.
+- Ordinary changes arrive through checked pull requests. Changesets declare version bumps and changelog entries; there is no separate release PR. Pull requests must add one by default, with a per-repository opt-out and an exemption for dependency updates. Without pending changesets on the default branch, CI runs and production stays unchanged.
 - Release automation records version metadata before building, stores private images in GHCR, deploys by digest, and publishes tags/releases only after health verification.
 - Failed deployments attempt verified application rollback and hold later releases until owner-controlled retry or supersession.
 - Hosted validation uses the included allowance, with a manual Mac mini fallback restricted to private, same-repository PRs.
@@ -19,6 +19,7 @@ Host configuration remains in [mac-mini](https://github.com/eimerreis/mac-mini).
 
 - [Confirmed v1 design](docs/delivery-baseline.md)
 - [v1.0.0 milestone](https://github.com/eimerreis/devops/milestone/1) and [dependency-ordered implementation plan](docs/implementation-plan.md)
+- [Release App guide](docs/release-app.md)
 - [Domain glossary](GLOSSARY.md)
 - [Architectural decision records](docs/adr/)
 

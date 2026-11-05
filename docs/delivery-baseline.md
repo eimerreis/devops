@@ -33,14 +33,14 @@ Native spending-stop setup and proof that a new fallback run reports the correct
 Each release uses the complete selected default-branch snapshot, including accumulated changes without their own changesets. Changesets declare bump intent and release notes; they do not select which source files ship.
 
 1. Run CI for ordinary code changes, including changes that request no release.
-2. On default-branch arrival, inspect pending release changesets. With none, skip production deployment and release creation. Absence is a valid no-release signal: require neither an empty changeset nor a no-release label.
+2. On default-branch arrival, inspect pending release changesets. With none, skip production deployment and release creation. This holds however the commit arrived.
 3. Serialize release workflows per repository. Do not cancel an in-progress production deployment. Check for an unresolved release hold before advancing release bookkeeping.
 4. Use Changesets' CLI to generate versions/changelogs and consume changesets. The App commits the generated metadata to the default branch before the release build and deployment.
 5. Build and validate that recorded prepared revision. Push version-tagged private images to GHCR and retain their immutable digests.
 6. Deploy by digest. An application-owned automated health check must confirm that the expected version is serving correctly.
 7. After successful verification, update `latest` and publish the application release tags and GitHub Release. Application-owned platform distribution can then consume the verified version and source commit.
 
-There is no separate release PR. Adoption and baseline-upgrade PRs remain required. Because missing changesets are accepted, omission is intentionally not caught by a mandatory release-intent gate; version/bump accuracy and release-note completeness remain responsibilities of the reviewed changeset declarations.
+There is no separate release PR. Adoption and baseline-upgrade PRs remain required. Pull requests must add a changeset by default, and an empty changeset states that nothing ships. Dependency updates titled `chore(deps)` or `chore(deps-dev)` are exempt, and each repository can turn the requirement off with an explicit per-repository option ([ADR-0018](adr/0018-require-a-changeset-on-pull-requests-by-default.md)). Version/bump accuracy and release-note completeness remain responsibilities of the reviewed changeset declarations.
 
 ## Recovery and artifact identity
 
@@ -52,6 +52,8 @@ There is no separate release PR. Adoption and baseline-upgrade PRs remain requir
 - Supersession leaves the failed version unpublished, preserves its history, and carries its unreleased notes into the replacement. Version-number gaps are acceptable.
 
 ## App authority and credentials
+
+Create the App and enroll repositories with the [release App guide](release-app.md).
 
 The dedicated GitHub App is installed only on participating repositories and receives an explicit branch-protection exception for release bookkeeping. Its maximum permissions are Contents: write and Workflows: write, with no Administration permission. Mint narrower installation tokens for each job.
 
@@ -79,7 +81,7 @@ Reconcile each application's existing release history and declare the initial ve
 
 - Scope -> separate public baseline -> MIT license: settled.
 - Participation -> checked ordinary PRs -> trusted native enforcement -> owner-only manual operations: settled.
-- Release units -> authored changesets -> no release PR -> optional release intent -> committed preparation: settled.
+- Release units -> authored changesets -> no release PR -> release intent required on PRs by default -> committed preparation: settled.
 - Prepared revision -> GHCR digest -> verified production deployment -> publication -> app-owned distribution: settled.
 - Failure -> rollback and hold -> same-version retry or explicit supersession: settled.
 - Execution -> included hosted capacity -> manual trusted Mac fallback: settled.
@@ -97,7 +99,7 @@ They are tracked in the [v1.0.0 implementation plan](implementation-plan.md) and
 - Define thin caller interfaces and shared workflow topology. Shared helper code must execute from the reviewed pinned baseline revision.
 - Reject unexpected non-metadata writes before using the App bypass. Prevent metadata-generated events from recursively preparing another release.
 - Prove the preparation commit, build output, registry digest, health evidence, and publication all refer to the intended source revision.
-- Demonstrate ordinary PR gates, explicit exceptions, no-changeset skips, and correct required-check results under path/matrix/skip conditions.
+- Demonstrate ordinary PR gates, explicit exceptions, the changeset requirement and its opt-out, no-changeset skips, and correct required-check results under path/matrix/skip conditions.
 - Validate hosted spending-stop setup and the manual fallback path against the correct PR revision, including rejection of fork PR fallback.
 - Define owner-only retry/supersession controls and the cross-run release hold; handle preparation races, partially completed publication, and retry idempotency.
 - Verify rollback health, migration compatibility, notes carried during supersession, and retention of required recovery evidence/artifacts.
@@ -124,3 +126,4 @@ They are tracked in the [v1.0.0 implementation plan](implementation-plan.md) and
 - [Use manual, trusted Mac mini fallback for PR validation](adr/0015-use-manual-trusted-mac-mini-fallback-for-pr-validation.md)
 - [Publish the generic baseline as a public repository](adr/0016-publish-the-generic-baseline-as-a-public-repository.md)
 - [Support the current baseline major without runtime expiry](adr/0017-support-the-current-baseline-major-without-runtime-expiry.md)
+- [Require a changeset on pull requests by default](adr/0018-require-a-changeset-on-pull-requests-by-default.md)

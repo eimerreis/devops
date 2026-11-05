@@ -1,0 +1,15 @@
+{
+  "name": "eimerreis-release",
+  "url": "https://github.com/eimerreis/devops/blob/main/docs/release-app.md",
+  "description": "Commits generated release metadata and publishes releases for repositories on the delivery baseline.",
+  "public": false,
+  "hook_attributes": {
+    "url": "https://github.com/eimerreis/devops/blob/main/docs/release-app.md",
+    "active": false
+  },
+  "default_permissions": {
+    "contents": "write",
+    "workflows": "write"
+  },
+  "default_events": []
+}
