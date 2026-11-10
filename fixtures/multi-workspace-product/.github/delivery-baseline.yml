@@ -1,0 +1,22 @@
+schemaVersion: 1
+setup: { run: pnpm install --frozen-lockfile }
+validation:
+  lint: { run: pnpm lint }
+  typecheck: { run: pnpm typecheck }
+  test: { run: pnpm test }
+  build: { run: pnpm build }
+  platforms:
+    - { name: desktop-smoke, run: pnpm smoke }
+releaseUnits:
+  - id: library
+    changesetPackage: "@product/web"
+    initialVersion: 0.9.0
+    tagPrefix: v
+    images:
+      - name: web
+        repository: ghcr.io/example/library-web
+        dockerfile: apps/web/Dockerfile
+        context: .
+    deploy: { run: bash deploy/deploy.sh }
+    health: { run: bash deploy/health.sh }
+    rollback: { run: bash deploy/rollback.sh }

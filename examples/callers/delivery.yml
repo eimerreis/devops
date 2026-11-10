@@ -1,0 +1,14 @@
+# Copy to .github/workflows/delivery.yml and replace the all-zero SHA with the baseline release commit.
+name: Delivery
+
+# Keep this trigger unfiltered. A required check from a workflow skipped by path filters stays pending forever.
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  baseline:
+    name: baseline
+    uses: eimerreis/devops/.github/workflows/contract.yml@0000000000000000000000000000000000000000 # vX.Y.Z

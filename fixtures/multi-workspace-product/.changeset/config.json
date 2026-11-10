@@ -1,0 +1,8 @@
+{
+  "changelog": false,
+  "commit": false,
+  "access": "restricted",
+  "baseBranch": "main",
+  "privatePackages": { "version": true, "tag": false },
+  "ignore": ["@product/tooling"]
+}

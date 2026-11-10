@@ -1,0 +1,1 @@
+{ "name": "@product/web", "version": "0.9.0", "private": true, "dependencies": { "@product/lib": "workspace:*", "@product/tooling": "workspace:*" } }

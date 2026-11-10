@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/eimerreis/devops/schemas/prepared-release.schema.json",
+  "title": "Prepared release",
+  "description": "Binds a release unit's version to the recorded source revision every later job must use.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "repository", "releaseUnit", "version", "tag", "sourceRevision", "baselineRevision", "producedBy"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "repository": { "$ref": "#/$defs/repository" },
+    "releaseUnit": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+    "version": { "type": "string", "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$" },
+    "tag": { "type": "string", "minLength": 1 },
+    "sourceRevision": { "$ref": "#/$defs/revision", "description": "The commit containing the generated release metadata." },
+    "baselineRevision": { "$ref": "#/$defs/revision", "description": "The pinned baseline revision that prepared the release." },
+    "producedBy": { "$ref": "#/$defs/workflowRun" }
+  },
+  "$defs": {
+    "repository": { "type": "string", "pattern": "^[^/\\s]+/[^/\\s]+$" },
+    "revision": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "workflowRun": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["workflowRef", "runId", "runAttempt"],
+      "properties": {
+        "workflowRef": { "type": "string", "minLength": 1 },
+        "runId": { "type": "string", "pattern": "^[0-9]+$" },
+        "runAttempt": { "type": "integer", "minimum": 1 }
+      }
+    }
+  }
+}

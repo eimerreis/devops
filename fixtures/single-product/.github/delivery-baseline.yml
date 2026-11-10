@@ -1,0 +1,20 @@
+schemaVersion: 1
+setup: { run: npm ci }
+validation:
+  lint: { run: npm run lint }
+  typecheck: { exempt: Plain JavaScript without type annotations. }
+  test: { run: npm test }
+  build: { run: npm run build }
+releaseUnits:
+  - id: notes-service
+    changesetPackage: notes-service
+    initialVersion: 1.4.0
+    tagPrefix: v
+    images:
+      - name: notes-service
+        repository: ghcr.io/example/notes-service
+        dockerfile: Dockerfile
+        context: .
+    deploy: { run: ./deploy/deploy.sh }
+    health: { run: ./deploy/health.sh }
+    rollback: { run: ./deploy/rollback.sh }

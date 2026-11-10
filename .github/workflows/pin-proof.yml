@@ -1,0 +1,35 @@
+name: Pin proof
+
+# Proves shared helper code runs from the revision a caller pins, not from the caller's commit or a moving branch.
+# The pin must name an earlier commit, because a commit cannot contain its own SHA. Move it forward deliberately.
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pinned:
+    uses: eimerreis/devops/.github/workflows/contract.yml@30ba0c73d25333ba86380635339cd42a3a105fd3
+    with:
+      root: fixtures/single-product
+
+  verify:
+    needs: pinned
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Check the helper revision
+        env:
+          PINNED: 30ba0c73d25333ba86380635339cd42a3a105fd3
+          BASELINE_REVISION: ${{ needs.pinned.outputs.baseline-revision }}
+          BASELINE_REF: ${{ needs.pinned.outputs.baseline-ref }}
+          CALLER_REVISION: ${{ github.sha }}
+        run: |
+          echo "Caller revision:   $CALLER_REVISION"
+          echo "Baseline revision: $BASELINE_REVISION"
+          echo "Baseline ref:      $BASELINE_REF"
+          test "$BASELINE_REVISION" = "$PINNED"
+          test "$BASELINE_REVISION" != "$CALLER_REVISION"
+          test "$BASELINE_REF" = "eimerreis/devops/.github/workflows/contract.yml@$PINNED"
