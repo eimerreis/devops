@@ -2,7 +2,7 @@
 
 A shared GitHub Actions delivery baseline for application repositories, starting with container services running on the Mac mini.
 
-The confirmed design is the v1 requirements brief. This repository currently contains the design, glossary, and architectural decisions; implementation is organized through GitHub issues.
+The confirmed design is the v1 requirements brief. This repository contains the design, glossary, architectural decisions, and the [application delivery contract](docs/application-contract.md); remaining implementation is organized through GitHub issues.
 
 ## Delivery contract
 
@@ -19,6 +19,7 @@ Host configuration remains in [mac-mini](https://github.com/eimerreis/mac-mini).
 
 - [Confirmed v1 design](docs/delivery-baseline.md)
 - [v1.0.0 milestone](https://github.com/eimerreis/devops/milestone/1) and [dependency-ordered implementation plan](docs/implementation-plan.md)
+- [Application delivery contract](docs/application-contract.md)
 - [Release App guide](docs/release-app.md)
 - [Domain glossary](GLOSSARY.md)
 - [Architectural decision records](docs/adr/)
@@ -26,6 +27,13 @@ Host configuration remains in [mac-mini](https://github.com/eimerreis/mac-mini).
 The pilot is djlib. Wider adoption follows isolated failure/retry/rollback rehearsals and a verified production pilot release. Platform-specific distribution remains application-owned.
 
 Start with [#1: the application delivery contract](https://github.com/eimerreis/devops/issues/1). Each implementation issue includes acceptance criteria and native dependency links.
+
+## Development
+
+```sh
+npm ci --ignore-scripts
+npm test
+```
 
 ## License
 

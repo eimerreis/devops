@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/eimerreis/devops/schemas/image-manifest.schema.json",
+  "title": "Image manifest",
+  "description": "Records the immutable images built from a prepared release. Deployment and retries use these digests.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "repository", "releaseUnit", "version", "sourceRevision", "images", "producedBy"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "repository": { "$ref": "prepared-release.schema.json#/$defs/repository" },
+    "releaseUnit": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+    "version": { "type": "string", "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$" },
+    "sourceRevision": { "$ref": "prepared-release.schema.json#/$defs/revision" },
+    "images": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "repository", "digest"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "repository": { "type": "string", "minLength": 1 },
+          "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+        }
+      }
+    },
+    "producedBy": { "$ref": "prepared-release.schema.json#/$defs/workflowRun" }
+  }
+}

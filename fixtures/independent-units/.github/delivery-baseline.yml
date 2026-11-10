@@ -1,0 +1,32 @@
+schemaVersion: 1
+setup: { run: pnpm install --frozen-lockfile }
+validation:
+  lint: { run: pnpm lint }
+  typecheck: { run: pnpm typecheck }
+  test: { run: pnpm test }
+  build: { run: pnpm build }
+releaseUnits:
+  - id: api
+    changesetPackage: "@platform/api"
+    initialVersion: 2.1.0
+    tagPrefix: api-v
+    images:
+      - name: api
+        repository: ghcr.io/example/platform-api
+        dockerfile: apps/api/Dockerfile
+        context: .
+    deploy: { run: bash deploy/api.sh deploy }
+    health: { run: bash deploy/api.sh health }
+    rollback: { run: bash deploy/api.sh rollback }
+  - id: worker
+    changesetPackage: "@platform/worker"
+    initialVersion: 0.3.0
+    tagPrefix: worker-v
+    images:
+      - name: worker
+        repository: ghcr.io/example/platform-worker
+        dockerfile: apps/worker/Dockerfile
+        context: .
+    deploy: { run: bash deploy/worker.sh deploy }
+    health: { run: bash deploy/worker.sh health }
+    rollback: { run: bash deploy/worker.sh rollback }

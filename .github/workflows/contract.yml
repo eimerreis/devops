@@ -1,0 +1,67 @@
+name: Application contract
+
+# Validates a caller's delivery contract using helper code from the exact revision the caller pinned.
+# This job reads application files as data and never runs application commands.
+on:
+  workflow_call:
+    inputs:
+      root:
+        description: Application root, relative to the repository root.
+        type: string
+        default: .
+    outputs:
+      baseline-revision:
+        description: The baseline commit that supplied this workflow and its helper code.
+        value: ${{ jobs.contract.outputs.baseline-revision }}
+      baseline-ref:
+        description: The workflow reference the caller used.
+        value: ${{ jobs.contract.outputs.baseline-ref }}
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    name: contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      baseline-revision: ${{ job.workflow_sha }}
+      baseline-ref: ${{ job.workflow_ref }}
+    steps:
+      - name: Check out the pinned baseline
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ job.workflow_repository }}
+          ref: ${{ job.workflow_sha }}
+          path: baseline
+          persist-credentials: false
+      - name: Check out the application
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: application
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - name: Install helper dependencies
+        working-directory: baseline
+        run: npm ci --ignore-scripts --omit=dev
+      - name: Verify the baseline pin
+        working-directory: baseline
+        env:
+          WORKFLOW_REPOSITORY: ${{ job.workflow_repository }}
+          WORKFLOW_REF: ${{ job.workflow_ref }}
+          WORKFLOW_SHA: ${{ job.workflow_sha }}
+          CALLER_REPOSITORY: ${{ github.repository }}
+        run: |
+          node src/cli.mjs verify-pin \
+            --workflow-repository "$WORKFLOW_REPOSITORY" \
+            --workflow-ref "$WORKFLOW_REF" \
+            --workflow-sha "$WORKFLOW_SHA" \
+            --checkout-sha "$(git rev-parse HEAD)" \
+            --caller-repository "$CALLER_REPOSITORY"
+      - name: Validate the application contract
+        env:
+          APPLICATION_ROOT: application/${{ inputs.root }}
+        run: node baseline/src/cli.mjs validate --root "$APPLICATION_ROOT"

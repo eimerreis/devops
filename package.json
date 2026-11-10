@@ -1,0 +1,25 @@
+{
+  "name": "@eimerreis/delivery-baseline",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": "^22.11 || ^24 || >=26"
+  },
+  "bin": {
+    "delivery-contract": "src/cli.mjs"
+  },
+  "scripts": {
+    "test": "node --test \"test/*.test.mjs\""
+  },
+  "dependencies": {
+    "@changesets/cli": "3.0.3",
+    "@changesets/config": "4.0.1",
+    "@changesets/read": "1.0.1",
+    "@manypkg/get-packages": "3.1.0",
+    "ajv": "8.20.0",
+    "semver": "7.8.6",
+    "yaml": "2.9.1"
+  }
+}
