@@ -7,6 +7,7 @@ An application declares how it is validated and released in `.github/delivery-ba
 - [Image-manifest schema](../schemas/image-manifest.schema.json)
 - [Fixtures](../fixtures/): a single product, a multi-workspace product, and independently released units
 - [Thin caller example](../examples/callers/delivery.yml)
+- [Pin proof](../.github/workflows/pin-proof.yml): calls the shared workflow at an earlier commit and checks which revision ran
 
 ## Declaring an application
 
