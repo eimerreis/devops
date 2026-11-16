@@ -45,3 +45,15 @@ Restoring the last verified application image and verifying the restored service
 
 **Operator**:
 The repository owner authorized to perform manual recovery, supersession, and runner-mode changes.
+
+**Runtime secret**:
+A confidential value an application reads while running on a host, such as a database password or an API key.
+_Avoid_: Env var, app secret
+
+**Pipeline credential**:
+A confidential value only the delivery pipeline uses, such as the release App key or a signing certificate. It never reaches the running application.
+_Avoid_: CI secret, release secret
+
+**Secret recipient**:
+A host or operator allowed to decrypt a repository's runtime secrets for a given environment.
+_Avoid_: Key holder, reader

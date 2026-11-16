@@ -134,6 +134,7 @@ Later jobs must use these records rather than `github.sha` or a newly resolved d
 | `.github/delivery-baseline.yml` and the commands it names | Schemas and contract validation |
 | Changesets configuration and changesets | Running the Changesets CLI |
 | Credentials in its release environment | Helper code, executed from the pinned revision |
+| Encrypted runtime secrets and `.sops.yaml` recipients | Decryption on the deploying host |
 
 Callers must not add path filters to the workflow providing a required check, because a skipped workflow leaves that check pending.
 
