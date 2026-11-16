@@ -65,7 +65,7 @@ Environment restrictions control GitHub secret availability, not isolation of th
 
 ## Runtime secrets
 
-Runtime secrets live SOPS-encrypted in the caller repository as `secrets/<environment>.env.enc`, with age recipients per host and environment in `.sops.yaml`. The deploying host decrypts them with its own age key; GitHub environments hold only pipeline credentials. See [ADR-0019](adr/0019-keep-runtime-secrets-sops-encrypted-in-caller-repositories.md).
+Runtime secrets live SOPS-encrypted in the caller repository as `secrets/<environment>.enc.env`, with age recipients per host and environment in `.sops.yaml`. The deploying host decrypts them with its own age key; GitHub environments hold only pipeline credentials. See [ADR-0019](adr/0019-keep-runtime-secrets-sops-encrypted-in-caller-repositories.md).
 
 ## Baseline releases and upgrades
 
