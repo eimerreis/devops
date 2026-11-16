@@ -63,6 +63,10 @@ Each caller repository keeps App credentials in a release-only GitHub environmen
 
 Environment restrictions control GitHub secret availability, not isolation of the persistent Mac user account or Docker access. The same-repository fallback rule is a trusted-contributor boundary.
 
+## Runtime secrets
+
+Runtime secrets live SOPS-encrypted in the caller repository as `secrets/<environment>.env.enc`, with age recipients per host and environment in `.sops.yaml`. The deploying host decrypts them with its own age key; GitHub environments hold only pipeline credentials. See [ADR-0019](adr/0019-keep-runtime-secrets-sops-encrypted-in-caller-repositories.md).
+
 ## Baseline releases and upgrades
 
 - Pin shared workflows to exact revisions associated with tagged baseline releases.
@@ -127,3 +131,4 @@ They are tracked in the [v1.0.0 implementation plan](implementation-plan.md) and
 - [Publish the generic baseline as a public repository](adr/0016-publish-the-generic-baseline-as-a-public-repository.md)
 - [Support the current baseline major without runtime expiry](adr/0017-support-the-current-baseline-major-without-runtime-expiry.md)
 - [Require a changeset on pull requests by default](adr/0018-require-a-changeset-on-pull-requests-by-default.md)
+- [Keep runtime secrets SOPS-encrypted in caller repositories](adr/0019-keep-runtime-secrets-sops-encrypted-in-caller-repositories.md)
