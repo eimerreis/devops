@@ -19,7 +19,8 @@ function usesReferences(workflow) {
 
 describe("workflow boundary", () => {
   test("external actions and workflows are pinned to immutable revisions", () => {
-    for (const file of [...workflowFiles, join(repository, "examples/callers/delivery.yml")]) {
+    const examples = ["delivery.yml", "dependency-maintenance.yml"].map((name) => join(repository, "examples/callers", name));
+    for (const file of [...workflowFiles, ...examples]) {
       for (const reference of usesReferences(readWorkflow(file))) {
         if (reference.startsWith("./")) continue;
         assert.match(reference, /(@[0-9a-f]{40}|@sha256:[0-9a-f]{64})$/, `${file}: ${reference}`);
@@ -58,6 +59,36 @@ describe("workflow boundary", () => {
       assert.equal(step.with["persist-credentials"], false);
     }
     assert.equal(steps.find((step) => step.run?.startsWith("npm ")).run, "npm ci --ignore-scripts --omit=dev");
+  });
+});
+
+describe("dependency maintenance", () => {
+  const workflow = readWorkflow(join(workflowDirectory, "dependency-maintenance.yml"));
+  const example = readWorkflow(join(repository, "examples/callers/dependency-maintenance.yml"));
+
+  test("no checkout leaves a token in the git config for the agent", () => {
+    for (const job of Object.values(workflow.jobs)) {
+      for (const step of (job.steps ?? []).filter((candidate) => candidate.uses?.startsWith("actions/checkout"))) {
+        assert.equal(step.with["persist-credentials"], false);
+      }
+    }
+  });
+
+  test("helper scripts come from the shared workflow's own revision", () => {
+    for (const job of Object.values(workflow.jobs)) {
+      const baseline = job.steps.find((step) => step.with?.repository === "${{ job.workflow_repository }}");
+      assert.equal(baseline.with.ref, "${{ job.workflow_sha }}");
+    }
+  });
+
+  test("the workflow token stays read-only; writes use the caller's bot token", () => {
+    assert.deepEqual(workflow.permissions, { contents: "read" });
+    assert.deepEqual(example.permissions, { contents: "read" });
+    assert.deepEqual(Object.keys(workflow.on.workflow_call.secrets).sort(), ["ANTHROPIC_API_KEY", "DEPENDENCY_BOT_TOKEN"]);
+  });
+
+  test("pull requests are handled one at a time", () => {
+    assert.equal(workflow.jobs.maintain.strategy["max-parallel"], 1);
   });
 });
 

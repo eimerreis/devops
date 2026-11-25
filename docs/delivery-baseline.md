@@ -132,3 +132,4 @@ They are tracked in the [v1.0.0 implementation plan](implementation-plan.md) and
 - [Support the current baseline major without runtime expiry](adr/0017-support-the-current-baseline-major-without-runtime-expiry.md)
 - [Require a changeset on pull requests by default](adr/0018-require-a-changeset-on-pull-requests-by-default.md)
 - [Keep runtime secrets SOPS-encrypted in caller repositories](adr/0019-keep-runtime-secrets-sops-encrypted-in-caller-repositories.md)
+- [Repair dependency updates with an AI agent](adr/0020-repair-dependency-updates-with-an-ai-agent.md)

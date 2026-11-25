@@ -1,0 +1,32 @@
+# Copy to .github/workflows/dependency-maintenance.yml and replace the all-zero SHA with the baseline release commit.
+# Needs the repository secrets ANTHROPIC_API_KEY and DEPENDENCY_BOT_TOKEN; see docs/dependency-maintenance.md.
+name: Dependency maintenance
+
+on:
+  schedule:
+    - cron: "17 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dependency-maintenance
+  cancel-in-progress: false
+
+jobs:
+  dependencies:
+    name: dependencies
+    uses: eimerreis/devops/.github/workflows/dependency-maintenance.yml@0000000000000000000000000000000000000000 # vX.Y.Z
+    with:
+      verify: |
+        npm ci
+        npm run build
+        npm test
+      e2e: |
+        npx playwright install --with-deps chromium
+        npm run test:e2e
+      majors: merge
+    secrets:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      DEPENDENCY_BOT_TOKEN: ${{ secrets.DEPENDENCY_BOT_TOKEN }}
