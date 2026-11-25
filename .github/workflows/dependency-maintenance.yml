@@ -29,6 +29,10 @@ on:
         description: Shell commands for end-to-end tests. They run in addition to verify for major updates.
         type: string
         default: ""
+      exclude:
+        description: Extended regular expression on the pull request branch. Matching pull requests are left alone, for ecosystems this runner can't verify.
+        type: string
+        default: ""
       majors:
         description: "Major-update policy: merge (requires e2e), review (verify and repair, then leave for the owner), or ignore."
         type: string
@@ -76,6 +80,7 @@ jobs:
           REPOSITORY: ${{ github.repository }}
           MAJORS: ${{ inputs.majors }}
           E2E: ${{ inputs.e2e }}
+          EXCLUDE: ${{ inputs.exclude }}
           LIMIT: ${{ inputs.max-pull-requests }}
         run: baseline/scripts/dependency-maintenance/plan.sh
 

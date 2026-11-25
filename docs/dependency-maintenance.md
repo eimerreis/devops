@@ -32,6 +32,7 @@ A grouped pull request counts as major when any update in it is major, as Depend
 | `verify` | required | Install, build, and test. Exit code 0 means safe to merge. |
 | `e2e` | empty | End-to-end tests, run for majors in addition to `verify`. |
 | `majors` | `review` | See above. |
+| `exclude` | empty | Regular expression on the branch name; matching pull requests are skipped, for example `^dependabot/bundler/` on a Linux runner. |
 | `runs-on` | `"ubuntu-latest"` | Runner labels as JSON. |
 | `node-version` | `24` | Always installed, because opencode runs on Node.js. |
 | `bun-version` | empty | Installs Bun when set. |
@@ -39,6 +40,15 @@ A grouped pull request counts as major when any update in it is major, as Depend
 | `model` | `anthropic/claude-opus-5-5` | opencode model. `anthropic/claude-sonnet-5-5` costs half. |
 | `max-pull-requests` | `10` | Limit per run. |
 | `timeout-minutes` | `60` | Limit per pull request. |
+
+`verify` and `e2e` see the pull request's branch as `$PR_BRANCH`, so a monorepo can run only the checks an ecosystem affects:
+
+```sh
+case "$PR_BRANCH" in
+  dependabot/gradle/*) scripts/android-test all ;;
+  *) pnpm install --frozen-lockfile && pnpm test ;;
+esac
+```
 
 ## Adopt it in a repository
 
