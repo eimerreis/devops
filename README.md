@@ -21,6 +21,7 @@ Host configuration remains in [mac-mini](https://github.com/eimerreis/mac-mini).
 - [v1.0.0 milestone](https://github.com/eimerreis/devops/milestone/1) and [dependency-ordered implementation plan](docs/implementation-plan.md)
 - [Application delivery contract](docs/application-contract.md)
 - [Release App guide](docs/release-app.md)
+- [Dependency maintenance](docs/dependency-maintenance.md): nightly merge or AI repair of Dependabot pull requests
 - [Domain glossary](GLOSSARY.md)
 - [Architectural decision records](docs/adr/)
 

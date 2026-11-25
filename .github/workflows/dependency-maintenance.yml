@@ -1,0 +1,136 @@
+name: Dependency maintenance
+
+# Merges Dependabot pull requests that pass the caller's checks and lets an AI agent repair the ones that fail.
+# The caller owns its commands and its major-update policy. See docs/dependency-maintenance.md.
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        description: Runner labels as JSON, for example '"ubuntu-latest"' or '["self-hosted", "Linux"]'.
+        type: string
+        default: '"ubuntu-latest"'
+      node-version:
+        description: Node.js version to install. opencode itself runs on Node.js, so this setup always runs.
+        type: string
+        default: "24"
+      bun-version:
+        description: Bun version to install. Empty skips the setup.
+        type: string
+        default: ""
+      setup:
+        description: Shell commands that prepare the toolchain, run once per pull request before verification.
+        type: string
+        default: ""
+      verify:
+        description: Shell commands that install, build, and test the repository. Exit code 0 means the update is safe.
+        type: string
+        required: true
+      e2e:
+        description: Shell commands for end-to-end tests. They run in addition to verify for major updates.
+        type: string
+        default: ""
+      majors:
+        description: "Major-update policy: merge (requires e2e), review (verify and repair, then leave for the owner), or ignore."
+        type: string
+        default: review
+      model:
+        description: opencode model in provider/model form.
+        type: string
+        default: anthropic/claude-opus-5-5
+      max-pull-requests:
+        description: Upper bound of pull requests handled per run.
+        type: number
+        default: 10
+      timeout-minutes:
+        description: Time limit per pull request.
+        type: number
+        default: 60
+    secrets:
+      ANTHROPIC_API_KEY:
+        required: true
+      DEPENDENCY_BOT_TOKEN:
+        description: Fine-grained token with Contents, Pull requests, and Workflows write. Pushes with GITHUB_TOKEN would not trigger CI.
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    name: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      pull-requests: ${{ steps.plan.outputs.pull-requests }}
+    steps:
+      - name: Check out the pinned baseline
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ job.workflow_repository }}
+          ref: ${{ job.workflow_sha }}
+          path: baseline
+          persist-credentials: false
+      - id: plan
+        env:
+          GH_TOKEN: ${{ secrets.DEPENDENCY_BOT_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+          MAJORS: ${{ inputs.majors }}
+          E2E: ${{ inputs.e2e }}
+          LIMIT: ${{ inputs.max-pull-requests }}
+        run: baseline/scripts/dependency-maintenance/plan.sh
+
+  maintain:
+    name: "maintain #${{ matrix.pull-request.number }}"
+    needs: plan
+    if: needs.plan.outputs.pull-requests != '[]'
+    runs-on: ${{ fromJSON(inputs.runs-on) }}
+    timeout-minutes: ${{ inputs.timeout-minutes }}
+    strategy:
+      fail-fast: false
+      # One at a time: every merge moves the base branch under the remaining pull requests.
+      max-parallel: 1
+      matrix:
+        pull-request: ${{ fromJSON(needs.plan.outputs.pull-requests) }}
+    steps:
+      - name: Check out the pinned baseline
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ job.workflow_repository }}
+          ref: ${{ job.workflow_sha }}
+          path: .dependency-maintenance
+          persist-credentials: false
+      - name: Check out the pull request
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ matrix.pull-request.branch }}
+          path: application
+          fetch-depth: 0
+          # The agent runs repository commands; it must not find a token in the git config.
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ inputs.node-version }}
+      - if: inputs.bun-version != ''
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: ${{ inputs.bun-version }}
+      - name: Prepare the toolchain
+        if: inputs.setup != ''
+        working-directory: application
+        env:
+          SETUP: ${{ inputs.setup }}
+        run: bash -euo pipefail -c "$SETUP"
+      - name: Merge or repair
+        working-directory: application
+        env:
+          GH_TOKEN: ${{ secrets.DEPENDENCY_BOT_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ matrix.pull-request.number }}
+          PR_BRANCH: ${{ matrix.pull-request.branch }}
+          PR_MAJOR: ${{ matrix.pull-request.major }}
+          VERIFY: ${{ inputs.verify }}
+          E2E: ${{ inputs.e2e }}
+          MAJORS: ${{ inputs.majors }}
+          MODEL: ${{ inputs.model }}
+        run: ../.dependency-maintenance/scripts/dependency-maintenance/maintain.sh
