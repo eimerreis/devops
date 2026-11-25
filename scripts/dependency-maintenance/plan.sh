@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Lists the open Dependabot pull requests this run should handle and writes them as a JSON matrix.
-# Env: GH_TOKEN, REPOSITORY, MAJORS (merge|review|ignore), E2E, LIMIT, GITHUB_OUTPUT.
+# Env: GH_TOKEN, REPOSITORY, MAJORS (merge|review|ignore), E2E, EXCLUDE, LIMIT, GITHUB_OUTPUT.
 set -euo pipefail
 
 case "$MAJORS" in
@@ -29,8 +29,9 @@ matrix=$(
       --jq 'any(.commits[]; .messageBody | test("update-type: version-update:semver-major"))')
     jq -c --argjson major "$major" \
       '{number, branch: .headRefName, mergeable, labels: [.labels[].name], major: $major}' <<<"$entry"
-  done | jq -sc --arg majors "$MAJORS" --argjson limit "$LIMIT" '
-    map(select((.labels | index("needs-human") | not) and (.labels | index("ready-for-review") | not)))
+  done | jq -sc --arg majors "$MAJORS" --arg exclude "$EXCLUDE" --argjson limit "$LIMIT" '
+    map(select($exclude == "" or (.branch | test($exclude) | not)))
+    | map(select((.labels | index("needs-human") | not) and (.labels | index("ready-for-review") | not)))
     | map(select($majors != "ignore" or (.major | not)))
     | sort_by(.major, .number)
     | .[:$limit]'
