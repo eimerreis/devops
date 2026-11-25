@@ -1,0 +1,28 @@
+# Nightly: merge Dependabot pull requests that pass, let opencode repair the ones that fail.
+# Uses the shared workflow from this same commit. See docs/dependency-maintenance.md.
+name: Dependency maintenance
+
+on:
+  schedule:
+    - cron: "5 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dependency-maintenance
+  cancel-in-progress: false
+
+jobs:
+  dependencies:
+    name: dependencies
+    uses: ./.github/workflows/dependency-maintenance.yml
+    secrets:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      DEPENDENCY_BOT_TOKEN: ${{ secrets.DEPENDENCY_BOT_TOKEN }}
+    with:
+      majors: review
+      verify: |
+        npm ci --ignore-scripts
+        npm test
